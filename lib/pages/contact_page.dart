@@ -25,25 +25,23 @@ class _ContactPageState extends State<ContactPage> {
   bool isLoading = false;
   void handleLogout() async {
     FirebaseAuth auth = FirebaseAuth.instance;
-    // await auth.signOut();
-    Navigator.pop(context);
-    setState(() {
-      isLoading = true;
-    });
-    var docSnapshot = await db.collection("users").doc(auth.currentUser!.email).get();
-    if (docSnapshot.exists) {
-      Map<String, dynamic>? data = docSnapshot.data();
-      var fcmToken = data?['fcmToken'];
-      var userId = auth.currentUser!.email;
-      await db.collection("users").doc(userId).delete().then((value) => {
-            auth.signOut().then((value) => {
-                  setState(() {
-                    isLoading = false;
-                  }),
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()))
-                })
-          });
-    }
+    await FirebaseAuth.instance.signOut();
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => LoginScreen()));
+    // var docSnapshot = await db.collection("users").doc(auth.currentUser!.email).get();
+    // if (docSnapshot.exists) {
+    //   Map<String, dynamic>? data = docSnapshot.data();
+    //   var fcmToken = data?['fcmToken'];
+    //   var userId = auth.currentUser!.email;
+    //   await db.collection("users").doc(userId).delete().then((value) => {
+    //         auth.signOut().then((value) => {
+    //               setState(() {
+    //                 isLoading = false;
+    //               }),
+    //               Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()))
+    //             })
+    //       });
+    // }
   }
 
   @override
@@ -57,15 +55,19 @@ class _ContactPageState extends State<ContactPage> {
             automaticallyImplyLeading: false,
             flexibleSpace: Container(
               decoration: BoxDecoration(
-                gradient: const LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [
-                  MaterialColors.primary,
-                  MaterialColors.primary2,
-                ]),
+                gradient: const LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [
+                      MaterialColors.primary,
+                      MaterialColors.primary2,
+                    ]),
               ),
             ),
             title: Text(
               "Tài khoản",
-              style: TextStyle(color: MaterialColors.white, fontFamily: "SF Bold"),
+              style:
+                  TextStyle(color: MaterialColors.white, fontFamily: "SF Bold"),
             ),
           ),
           body: Stack(
@@ -76,7 +78,8 @@ class _ContactPageState extends State<ContactPage> {
                     child: Column(
                       children: [
                         Container(
-                          padding: const EdgeInsets.only(top: 15, bottom: 15, left: 15, right: 15),
+                          padding: const EdgeInsets.only(
+                              top: 15, bottom: 15, left: 15, right: 15),
                           child: Row(
                             children: [
                               Container(
@@ -113,26 +116,36 @@ class _ContactPageState extends State<ContactPage> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => UpdateProfileScreen(),
+                                        builder: (context) =>
+                                            UpdateProfileScreen(),
                                       ),
                                     );
                                   },
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
                                         context.read<AppProvider>().getName,
-                                        style: const TextStyle(color: MaterialColors.black, fontFamily: "SF Bold", fontSize: 22),
+                                        style: const TextStyle(
+                                            color: MaterialColors.black,
+                                            fontFamily: "SF Bold",
+                                            fontSize: 22),
                                       ),
                                       Padding(padding: EdgeInsets.all(2)),
                                       Row(
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
                                         children: [
                                           Text(
                                             "Chỉnh sửa tài khoản",
-                                            style: const TextStyle(color: Colors.black54, fontFamily: "SF Medium", fontSize: 15),
+                                            style: const TextStyle(
+                                                color: Colors.black54,
+                                                fontFamily: "SF Medium",
+                                                fontSize: 15),
                                           ),
                                           SizedBox(
                                             width: 5,
@@ -163,12 +176,16 @@ class _ContactPageState extends State<ContactPage> {
                             children: [
                               const Text(
                                 "Thiết lập tài khoản",
-                                style: TextStyle(color: Colors.black54, fontFamily: "SF Medium", fontSize: 17),
+                                style: TextStyle(
+                                    color: Colors.black54,
+                                    fontFamily: "SF Medium",
+                                    fontSize: 17),
                               ),
                               const Padding(padding: EdgeInsets.all(15)),
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Row(
                                     children: [
@@ -181,7 +198,10 @@ class _ContactPageState extends State<ContactPage> {
                                         onTap: () {},
                                         child: Text(
                                           "Cài đặt ",
-                                          style: TextStyle(color: Colors.black87, fontFamily: "SF SemiBold", fontSize: 16),
+                                          style: TextStyle(
+                                              color: Colors.black87,
+                                              fontFamily: "SF SemiBold",
+                                              fontSize: 16),
                                         ),
                                       )
                                     ],
@@ -196,47 +216,62 @@ class _ContactPageState extends State<ContactPage> {
                               Container(
                                 decoration: const BoxDecoration(
                                   border: Border(
-                                    bottom: BorderSide(color: Colors.black12, width: 1),
+                                    bottom: BorderSide(
+                                        color: Colors.black12, width: 1),
                                   ),
                                 ),
                                 margin: EdgeInsets.only(top: 20, bottom: 20),
                               ),
                               InkWell(
                                 onTap: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => ChangePasswordScreen()));
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              ChangePasswordScreen()));
                                 },
-                                child: Row(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                                  Row(
+                                child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.privacy_tip_outlined,
+                                            size: 24,
+                                          ),
+                                          Padding(padding: EdgeInsets.all(8)),
+                                          Text(
+                                            "Đổi mật khẩu",
+                                            style: TextStyle(
+                                                color: Colors.black87,
+                                                fontFamily: "SF SemiBold",
+                                                fontSize: 16),
+                                          ),
+                                        ],
+                                      ),
                                       Icon(
-                                        Icons.privacy_tip_outlined,
-                                        size: 24,
+                                        Icons.arrow_forward_ios_rounded,
+                                        size: 16,
+                                        color: Colors.black45,
                                       ),
-                                      Padding(padding: EdgeInsets.all(8)),
-                                      Text(
-                                        "Đổi mật khẩu",
-                                        style: TextStyle(color: Colors.black87, fontFamily: "SF SemiBold", fontSize: 16),
-                                      ),
-                                    ],
-                                  ),
-                                  Icon(
-                                    Icons.arrow_forward_ios_rounded,
-                                    size: 16,
-                                    color: Colors.black45,
-                                  ),
-                                ]),
+                                    ]),
                               ),
                               Container(
                                 decoration: const BoxDecoration(
                                   border: Border(
-                                    bottom: BorderSide(color: Colors.black12, width: 1),
+                                    bottom: BorderSide(
+                                        color: Colors.black12, width: 1),
                                   ),
                                 ),
                                 margin: EdgeInsets.only(top: 20, bottom: 20),
                               ),
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Row(
                                     children: [
@@ -249,7 +284,10 @@ class _ContactPageState extends State<ContactPage> {
                                         onTap: () {},
                                         child: Text(
                                           "Điều khoản hợp tác ",
-                                          style: TextStyle(color: Colors.black87, fontFamily: "SF SemiBold", fontSize: 16),
+                                          style: TextStyle(
+                                              color: Colors.black87,
+                                              fontFamily: "SF SemiBold",
+                                              fontSize: 16),
                                         ),
                                       )
                                     ],
@@ -264,110 +302,177 @@ class _ContactPageState extends State<ContactPage> {
                               Container(
                                 decoration: const BoxDecoration(
                                   border: Border(
-                                    bottom: BorderSide(color: Colors.black12, width: 1),
+                                    bottom: BorderSide(
+                                        color: Colors.black12, width: 1),
                                   ),
                                 ),
                                 margin: EdgeInsets.only(top: 20, bottom: 20),
                               ),
-                              Row(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                                Row(
+                              Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.support_agent,
+                                          size: 24,
+                                        ),
+                                        Padding(padding: EdgeInsets.all(8)),
+                                        Text(
+                                          "Trung tâm hỗ trợ",
+                                          style: TextStyle(
+                                              color: Colors.black87,
+                                              fontFamily: "SF SemiBold",
+                                              fontSize: 16),
+                                        ),
+                                      ],
+                                    ),
                                     Icon(
-                                      Icons.support_agent,
-                                      size: 24,
+                                      Icons.arrow_forward_ios_rounded,
+                                      size: 16,
+                                      color: Colors.black45,
                                     ),
-                                    Padding(padding: EdgeInsets.all(8)),
-                                    Text(
-                                      "Trung tâm hỗ trợ",
-                                      style: TextStyle(color: Colors.black87, fontFamily: "SF SemiBold", fontSize: 16),
-                                    ),
-                                  ],
-                                ),
-                                Icon(
-                                  Icons.arrow_forward_ios_rounded,
-                                  size: 16,
-                                  color: Colors.black45,
-                                ),
-                              ]),
-                              Container(decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.black12, width: 1))), margin: const EdgeInsets.only(top: 20, bottom: 20)),
+                                  ]),
+                              Container(
+                                  decoration: const BoxDecoration(
+                                      border: Border(
+                                          bottom: BorderSide(
+                                              color: Colors.black12,
+                                              width: 1))),
+                                  margin: const EdgeInsets.only(
+                                      top: 20, bottom: 20)),
                               InkWell(
                                 onTap: () {
                                   showDialog<String>(
                                     context: context,
-                                    builder: (BuildContext context) => AlertDialog(
+                                    builder: (BuildContext context) =>
+                                        AlertDialog(
                                       title: const Text(
                                         'Đăng xuất ngay',
-                                        style: TextStyle(color: Colors.black, fontFamily: "SF Bold", fontSize: 18),
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontFamily: "SF Bold",
+                                            fontSize: 18),
                                       ),
                                       actions: <Widget>[
                                         Container(
                                           padding: EdgeInsets.all(5),
-                                          child: Row(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                                            Expanded(
-                                              child: SizedBox(
-                                                height: 40,
-                                                child: ElevatedButton(
-                                                  child: Text(
-                                                    "Hủy",
-                                                    style: TextStyle(color: Colors.black45, fontFamily: "SF Medium", fontSize: 16),
-                                                  ),
-                                                  style: ElevatedButton.styleFrom(
-                                                    primary: Colors.white,
-                                                    textStyle: TextStyle(color: Colors.black),
-                                                    shadowColor: Colors.white,
-                                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5), side: BorderSide(color: Colors.black45, width: 1)),
-                                                  ),
-                                                  onPressed: () => {Navigator.pop(context)},
-                                                ),
-                                              ),
-                                            ),
-                                            Padding(padding: EdgeInsets.all(7)),
-                                            Expanded(
-                                              child: SizedBox(
-                                                height: 40,
-                                                child: ElevatedButton(
-                                                  child: const Text(
-                                                    "Đồng ý",
-                                                    style: TextStyle(color: Colors.white, fontFamily: "SF Medium", fontSize: 16),
-                                                  ),
-                                                  style: ElevatedButton.styleFrom(
-                                                    primary: MaterialColors.primary,
-                                                    textStyle: TextStyle(color: Colors.white),
-                                                    shadowColor: Colors.white,
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius: BorderRadius.circular(5),
+                                          child: Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Expanded(
+                                                  child: SizedBox(
+                                                    height: 40,
+                                                    child: ElevatedButton(
+                                                      child: Text(
+                                                        "Hủy",
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.black45,
+                                                            fontFamily:
+                                                                "SF Medium",
+                                                            fontSize: 16),
+                                                      ),
+                                                      style: ElevatedButton
+                                                          .styleFrom(
+                                                        primary: Colors.white,
+                                                        textStyle: TextStyle(
+                                                            color:
+                                                                Colors.black),
+                                                        shadowColor:
+                                                            Colors.white,
+                                                        shape: RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        5),
+                                                            side: BorderSide(
+                                                                color: Colors
+                                                                    .black45,
+                                                                width: 1)),
+                                                      ),
+                                                      onPressed: () => {
+                                                        Navigator.pop(context)
+                                                      },
                                                     ),
                                                   ),
-                                                  onPressed: () => {handleLogout()},
                                                 ),
-                                              ),
-                                            )
-                                          ]),
+                                                Padding(
+                                                    padding: EdgeInsets.all(7)),
+                                                Expanded(
+                                                  child: SizedBox(
+                                                    height: 40,
+                                                    child: ElevatedButton(
+                                                      child: const Text(
+                                                        "Đồng ý",
+                                                        style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontFamily:
+                                                                "SF Medium",
+                                                            fontSize: 16),
+                                                      ),
+                                                      style: ElevatedButton
+                                                          .styleFrom(
+                                                        primary: MaterialColors
+                                                            .primary,
+                                                        textStyle: TextStyle(
+                                                            color:
+                                                                Colors.white),
+                                                        shadowColor:
+                                                            Colors.white,
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(5),
+                                                        ),
+                                                      ),
+                                                      onPressed: () =>
+                                                          {handleLogout()},
+                                                    ),
+                                                  ),
+                                                )
+                                              ]),
                                         )
                                       ],
                                     ),
                                   );
                                 },
-                                child: Row(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                                  Row(
+                                child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
+                                      Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.logout,
+                                            size: 24,
+                                          ),
+                                          const Padding(
+                                              padding: EdgeInsets.all(8)),
+                                          const Text(
+                                            "Đăng xuất",
+                                            style: TextStyle(
+                                                color: Colors.black87,
+                                                fontFamily: "SF SemiBold",
+                                                fontSize: 16),
+                                          ),
+                                        ],
+                                      ),
                                       const Icon(
-                                        Icons.logout,
-                                        size: 24,
+                                        Icons.arrow_forward_ios_rounded,
+                                        size: 16,
+                                        color: Colors.black45,
                                       ),
-                                      const Padding(padding: EdgeInsets.all(8)),
-                                      const Text(
-                                        "Đăng xuất",
-                                        style: TextStyle(color: Colors.black87, fontFamily: "SF SemiBold", fontSize: 16),
-                                      ),
-                                    ],
-                                  ),
-                                  const Icon(
-                                    Icons.arrow_forward_ios_rounded,
-                                    size: 16,
-                                    color: Colors.black45,
-                                  ),
-                                ]),
+                                    ]),
                               )
                             ],
                           ),

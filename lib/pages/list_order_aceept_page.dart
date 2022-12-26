@@ -10,9 +10,6 @@ import 'package:vh_shipper_app/pages/route_detail_page.dart';
 import 'package:vh_shipper_app/provider/appProvider.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-import '../apis/apiServices.dart';
-import '../models/orderModel.dart';
-
 class ListOrderAceeptPage extends StatefulWidget {
   const ListOrderAceeptPage({Key? key}) : super(key: key);
 
@@ -23,30 +20,7 @@ class ListOrderAceeptPage extends StatefulWidget {
 class _ListOrderAceeptPageState extends State<ListOrderAceeptPage> {
   final currencyFormatter = NumberFormat('#,##0', 'ID');
   final Stream<QuerySnapshot> _usersStream =
-      FirebaseFirestore.instance.collection('employees').snapshots();
-  late bool isLoading = true;
-  late OrderResponse orderResponse = OrderResponse();
-
-
-  @override
-  void initState() {
-    getListProduct();
-    super.initState();
-  }
-
-  getListProduct() async {
-    print(AppProvider().getUid);
-    ApiServices.fetechOrders(AppProvider().getUserId).then((value) => {
-          if (value != null)
-            {
-              setState(() {
-                orderResponse = value;
-                isLoading = false;
-              })
-            }
-        });
-  }
-
+      FirebaseFirestore.instance.collection('routes').snapshots();
   order_item(edgeNum, firstEdge, lastEdge, orderNum, shipperId, status,
       totalBill, totalCod) {
     return Container(
@@ -317,330 +291,184 @@ class _ListOrderAceeptPageState extends State<ListOrderAceeptPage> {
                   TextStyle(color: MaterialColors.white, fontFamily: "SF Bold"),
             ),
           ),
-          body: isLoading
-              ? Container()
-              : ListView.builder(
-                  itemCount: orderResponse.data!.length,
-                  itemBuilder: ((context, index) {
-                    return InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => RouteDetailPage(
-                                routeId: '1',
-                                status: orderResponse.data![index].status ?? 1,
-                                totalBill:
-                                    orderResponse.data![index].totalBill ?? 0.0,
-                                totalCod:
-                                    orderResponse.data![index].totalCod ?? 0.0),
-                          ),
-                        );
-                      },
-                      child: order_item(
-                        orderResponse.data![index].edgeNum ?? 0,
-                        orderResponse.data![index].firstEdge ?? "",
-                        orderResponse.data![index].firstEdge ?? "",
-                        orderResponse.data![index].orderNum ?? 0,
-                        orderResponse.data![index].shiperId,
-                        orderResponse.data![index].status ?? 1,
-                        orderResponse.data![index].totalBill ?? 0,
-                        orderResponse.data![index].totalCod ?? 0,
-                      ),
-                    );
-                  }),
-                ));
+          body: SingleChildScrollView(
+              child: Stack(
+            children: [
+              Column(children: [
+                SizedBox(
+                  height: 10,
+                ),
+                StreamBuilder<QuerySnapshot>(
+                  stream: _usersStream,
+                  builder: (BuildContext context,
+                      AsyncSnapshot<QuerySnapshot> snapshot) {
+                    bool flag = false;
+                    String routeId = "";
+                    if (snapshot.hasError) {
+                      return Text('Something went wrong');
+                    }
+                    if (!snapshot.hasData) {
+                      return Container(
+                        height: MediaQuery.of(context).size.height - 200,
+                        width: MediaQuery.of(context).size.width,
+                        child: SpinKitDualRing(
+                          color: MaterialColors.primary,
+                          size: 40.0,
+                        ),
+                      );
+                    }
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Positioned(
+                          top: 50,
+                          child: Container(
+                            height: MediaQuery.of(context).size.height - 200,
+                            width: MediaQuery.of(context).size.width,
+                            child: SpinKitDualRing(
+                              color: MaterialColors.primary,
+                              size: 40.0,
+                            ),
+                          ));
+                    }
+                    // print("snapshot.data!.docs: " + snapshot.data!.docs.isNotEmpty.toString());
+                    if (snapshot.data!.docs.isNotEmpty) {
+                      snapshot.data!.docs.forEach((DocumentSnapshot document) {
+                        Map<String, dynamic> dataTmp =
+                            document.data()! as Map<String, dynamic>;
+                        if (dataTmp["Status"] == 2 &&
+                            dataTmp["ShipperId"] == shipperId) {
+                          flag = true;
+                          routeId = dataTmp["RouteId"];
+                        }
+                      });
+                      print(flag);
+                      return flag
+                          ? Column(
+                              children: snapshot.data!.docs
+                                  .map((DocumentSnapshot document) {
+                                Map<String, dynamic> data =
+                                    document.data()! as Map<String, dynamic>;
+                                if (data["RouteId"] == routeId) {
+                                  return InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => RouteDetailPage(
+                                              routeId: data["RouteId"],
+                                              status: data["Status"] ,
+                                              totalBill:  data["TotalAdvance"] ?? 0,
+                                              totalCod: data["TotalCod"] ?? 0),
+                                              // routeId: data["RouteId"],
+                                              // status: data["Status"] ,
+                                              // totalBill:  data["TotalBill"],
+                                              // totalCod: data["TotalCod"]),
+                                        ),
+                                      );
+                                    },
+                                    child: order_item(
+                                      data["EdgeNum"] ?? 0,
+                                      data["FirstEdge"] ?? "",
+                                      data["LastEdge"] ?? "",
+                                      data["OrderNum"] ?? 0,
+                                      data["ShipperId"] ?? "",
+                                      data["Status"] ?? 1,
+                                      data["TotalAdvance"] ?? 0,
+                                      data["TotalCod"] ?? 0,
+                                    ),
+                                  );
+                                } else {
+                                  return Container();
+                                }
+                              }).toList(),
+                            )
+                          : Column(
+                              children: snapshot.data!.docs
+                                  .map((DocumentSnapshot document) {
+                                Map<String, dynamic> data =
+                                    document.data()! as Map<String, dynamic>;
+                                if (data["Status"] == 1) {
+                                  return InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => RouteDetailPage(
+                                              routeId: data["RouteId"],
+                                              status: data["Status"] ?? 1,
+                                              totalBill: data["TotalAdvance"],
+                                              totalCod: data["TotalCod"]),
+                                        ),
+                                      );
+                                    },
+                                    child: order_item(
+                                      data["EdgeNum"] ?? 0,
+                                      data["FirstEdge"] ?? "",
+                                      data["LastEdge"] ?? "",
+                                      data["OrderNum"] ?? 0,
+                                      data["ShipperId"] ?? "",
+                                      data["Status"] ?? 1,
+                                      data["TotalAdvance"] ?? 0,
+                                      data["TotalCod"] ?? 0,
+                                    ),
+                                  );
+                                } else {
+                                  return Container(
+                                      // padding: EdgeInsets.only(top: 100),
+                                      // child: Center(
+                                      //     child: Column(
+                                      //   mainAxisAlignment: MainAxisAlignment.center,
+                                      //   crossAxisAlignment: CrossAxisAlignment.center,
+                                      //   children: [
+                                      //     Container(
+                                      //       height: 100,
+                                      //       width: 100,
+                                      //       child: Image.asset(
+                                      //         'assets/images/empty-order.png',
+                                      //         fit: BoxFit.cover,
+                                      //       ),
+                                      //     ),
+                                      //     Text(
+                                      //       "Hiện tại không có đơn hàng nào",
+                                      //       style: TextStyle(fontFamily: "SF Regular", fontSize: 16, color: Color.fromRGBO(120, 120, 120, 1)),
+                                      //     ),
+                                      //   ],
+                                      // )),
+                                      );
+                                }
+                              }).toList(),
+                            );
+                    } else {
+                      return Container(
+                        padding: EdgeInsets.only(top: 100),
+                        child: Center(
+                            child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              height: 100,
+                              width: 100,
+                              child: Image.asset(
+                                'assets/images/empty-order.png',
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            Text(
+                              "Hiện tại không có đơn hàng nào",
+                              style: TextStyle(
+                                  fontFamily: "SF Regular",
+                                  fontSize: 16,
+                                  color: Color.fromRGBO(120, 120, 120, 1)),
+                            ),
+                          ],
+                        )),
+                      );
+                    }
+                  },
+                )
+              ]),
+            ],
+          )));
     });
   }
 }
-
-
-          //  SingleChildScrollView(
-          //     child: Stack(
-          //   children: [
-          //     Column(
-          //       children: [
-          //         SizedBox(
-          //           height: 10,
-          //         ),
-          //         InkWell(
-          //           onTap: () {
-          //             // Navigator.push(
-          //             //   context,
-          //             //   MaterialPageRoute(
-          //             //     builder: (context) => RouteDetailPage(
-          //             //         routeId: orderResponse.["RouteId"],
-          //             //         status: data["Status"] ?? 1,
-          //             //         totalBill: data["TotalBill"],
-          //             //         totalCod: data["TotalCod"]),
-          //             //   ),
-          //             // );
-          //           },
-          //           child: order_item(
-          //             orderResponse.data!.first.edgeNum ?? 0,
-          //             orderResponse.data!.first.firstEdge ?? "",
-          //             orderResponse.data!.first.firstEdge ?? "",
-          //             orderResponse.data!.first.orderNum ?? 0,
-          //             "shipper1@gmail.com",
-          //             orderResponse.data!.first.status ?? 1,
-          //             orderResponse.data!.first.totalBill ?? 0,
-          //             orderResponse.data!.first.totalCod ?? 0,
-          //           ),
-
-                    //       Column(
-                    //           children: snapshot.data!.docs
-                    //               .map((DocumentSnapshot document) {
-                    //             Map<String, dynamic> data =
-                    //                 document.data()! as Map<String, dynamic>;
-                    //             if (data["Status"] == 1) {
-                    //               return InkWell(
-                    //                 onTap: () {
-                    //                   Navigator.push(
-                    //                     context,
-                    //                     MaterialPageRoute(
-                    //                       builder: (context) => RouteDetailPage(
-                    //                           routeId: data["RouteId"],
-                    //                           status: data["Status"] ?? 1,
-                    //                           totalBill: data["TotalBill"],
-                    //                           totalCod: data["TotalCod"]),
-                    //                     ),
-                    //                   );
-                    //                 },
-                    //                 child: order_item(
-                    //                   data["EdgeNum"],
-                    //                   data["FirstEdge"],
-                    //                   data["LastEdge"],
-                    //                   data["OrderNum"],
-                    //                   data["ShipperId"],
-                    //                   data["Status"],
-                    //                   data["TotalBill"],
-                    //                   data["TotalCod"],
-                    //                 ),
-                    //               );
-                    //             } else {
-                    //               return Container(
-                    //                   // padding: EdgeInsets.only(top: 100),
-                    //                   // child: Center(
-                    //                   //     child: Column(
-                    //                   //   mainAxisAlignment: MainAxisAlignment.center,
-                    //                   //   crossAxisAlignment: CrossAxisAlignment.center,
-                    //                   //   children: [
-                    //                   //     Container(
-                    //                   //       height: 100,
-                    //                   //       width: 100,
-                    //                   //       child: Image.asset(
-                    //                   //         'assets/images/empty-order.png',
-                    //                   //         fit: BoxFit.cover,
-                    //                   //       ),
-                    //                   //     ),
-                    //                   //     Text(
-                    //                   //       "Hiện tại không có đơn hàng nào",
-                    //                   //       style: TextStyle(fontFamily: "SF Regular", fontSize: 16, color: Color.fromRGBO(120, 120, 120, 1)),
-                    //                   //     ),
-                    //                   //   ],
-                    //                   // )),
-                    //                   );
-                    //             }
-                    //           }).toList(),
-                    //         );
-                    // } else {
-                    //   return Container(
-                    //     padding: EdgeInsets.only(top: 100),
-                    //     child: Center(
-                    //         child: Column(
-                    //       mainAxisAlignment: MainAxisAlignment.center,
-                    //       crossAxisAlignment: CrossAxisAlignment.center,
-                    //       children: [
-                    //         Container(
-                    //           height: 100,
-                    //           width: 100,
-                    //           child: Image.asset(
-                    //             'assets/images/empty-order.png',
-                    //             fit: BoxFit.cover,
-                    //           ),
-                    //         ),
-                    //         Text(
-                    //           "Hiện tại không có đơn hàng nào",
-                    //           style: TextStyle(
-                    //               fontFamily: "SF Regular",
-                    //               fontSize: 16,
-                    //               color: Color.fromRGBO(120, 120, 120, 1)),
-                    //         ),
-                    //       ],
-                    //     )),
-                    //   );
-                    // }
-
-                    // StreamBuilder<QuerySnapshot>(
-                    //   stream: _usersStream,
-                    //   builder: (BuildContext context,
-                    //       AsyncSnapshot<QuerySnapshot> snapshot) {
-                    //     bool flag = false;
-                    //     String routeId = "";
-                    //     print("dat dddddddd" + snapshot.hasError.toString());
-                    //     if (snapshot.hasError) {
-                    //       return Text('Something went wrong');
-                    //     }
-
-                    //     if (!snapshot.hasData) {
-                    //       return Container(
-                    //         height: MediaQuery.of(context).size.height - 200,
-                    //         width: MediaQuery.of(context).size.width,
-                    //         child: SpinKitDualRing(
-                    //           color: MaterialColors.primary,
-                    //           size: 40.0,
-                    //         ),
-                    //       );
-                    //     }
-                    //     if (snapshot.connectionState == ConnectionState.waiting) {
-                    //       return Positioned(
-                    //           top: 50,
-                    //           child: Container(
-                    //             height: MediaQuery.of(context).size.height - 200,
-                    //             width: MediaQuery.of(context).size.width,
-                    //             child: SpinKitDualRing(
-                    //               color: MaterialColors.primary,
-                    //               size: 40.0,
-                    //             ),
-                    //           ));
-                    //     }
-                    //     // print("snapshot.data!.docs: " + snapshot.data!.docs.isNotEmpty.toString());
-                    //     if (snapshot.data!.docs.isNotEmpty) {
-                    //       snapshot.data!.docs.forEach((DocumentSnapshot document) {
-                    //         Map<String, dynamic> dataTmp =
-                    //             document.data()! as Map<String, dynamic>;
-                    //         if (dataTmp["Status"] == 2 &&
-                    //             dataTmp["ShipperId"] == shipperId) {
-                    //           flag = true;
-                    //           routeId = dataTmp["RouteId"];
-                    //         }
-                    //       });
-                    //       return flag
-                    //           ? Column(
-                    //               children: snapshot.data!.docs
-                    //                   .map((DocumentSnapshot document) {
-                    //                 Map<String, dynamic> data =
-                    //                     document.data()! as Map<String, dynamic>;
-                    //                 if (data["RouteId"] == routeId) {
-                    //                   return InkWell(
-                    //                     onTap: () {
-                    //                       Navigator.push(
-                    //                         context,
-                    //                         MaterialPageRoute(
-                    //                           builder: (context) => RouteDetailPage(
-                    //                               routeId: data["RouteId"],
-                    //                               status: data["Status"] ?? 1,
-                    //                               totalBill: data["TotalBill"],
-                    //                               totalCod: data["TotalCod"]),
-                    //                         ),
-                    //                       );
-                    //                     },
-                    //                     child: order_item(
-                    //                       data["EdgeNum"] ?? 0,
-                    //                       data["FirstEdge"] ?? "",
-                    //                       data["LastEdge"] ?? "",
-                    //                       data["OrderNum"] ?? 0,
-                    //                       data["ShipperId"] ?? "",
-                    //                       data["Status"] ?? 1,
-                    //                       data["TotalBill"] ?? 0,
-                    //                       data["TotalCod"] ?? 0,
-                    //                     ),
-                    //                   );
-                    //                 } else {
-                    //                   return Container();
-                    //                 }
-                    //               }).toList(),
-                    //             )
-                    //           : Column(
-                    //               children: snapshot.data!.docs
-                    //                   .map((DocumentSnapshot document) {
-                    //                 Map<String, dynamic> data =
-                    //                     document.data()! as Map<String, dynamic>;
-                    //                 if (data["Status"] == 1) {
-                    //                   return InkWell(
-                    //                     onTap: () {
-                    //                       Navigator.push(
-                    //                         context,
-                    //                         MaterialPageRoute(
-                    //                           builder: (context) => RouteDetailPage(
-                    //                               routeId: data["RouteId"],
-                    //                               status: data["Status"] ?? 1,
-                    //                               totalBill: data["TotalBill"],
-                    //                               totalCod: data["TotalCod"]),
-                    //                         ),
-                    //                       );
-                    //                     },
-                    //                     child: order_item(
-                    //                       data["EdgeNum"],
-                    //                       data["FirstEdge"],
-                    //                       data["LastEdge"],
-                    //                       data["OrderNum"],
-                    //                       data["ShipperId"],
-                    //                       data["Status"],
-                    //                       data["TotalBill"],
-                    //                       data["TotalCod"],
-                    //                     ),
-                    //                   );
-                    //                 } else {
-                    //                   return Container(
-                    //                       // padding: EdgeInsets.only(top: 100),
-                    //                       // child: Center(
-                    //                       //     child: Column(
-                    //                       //   mainAxisAlignment: MainAxisAlignment.center,
-                    //                       //   crossAxisAlignment: CrossAxisAlignment.center,
-                    //                       //   children: [
-                    //                       //     Container(
-                    //                       //       height: 100,
-                    //                       //       width: 100,
-                    //                       //       child: Image.asset(
-                    //                       //         'assets/images/empty-order.png',
-                    //                       //         fit: BoxFit.cover,
-                    //                       //       ),
-                    //                       //     ),
-                    //                       //     Text(
-                    //                       //       "Hiện tại không có đơn hàng nào",
-                    //                       //       style: TextStyle(fontFamily: "SF Regular", fontSize: 16, color: Color.fromRGBO(120, 120, 120, 1)),
-                    //                       //     ),
-                    //                       //   ],
-                    //                       // )),
-                    //                       );
-                    //                 }
-                    //               }).toList(),
-                    //             );
-                    //     } else {
-                    //       return Container(
-                    //         padding: EdgeInsets.only(top: 100),
-                    //         child: Center(
-                    //             child: Column(
-                    //           mainAxisAlignment: MainAxisAlignment.center,
-                    //           crossAxisAlignment: CrossAxisAlignment.center,
-                    //           children: [
-                    //             Container(
-                    //               height: 100,
-                    //               width: 100,
-                    //               child: Image.asset(
-                    //                 'assets/images/empty-order.png',
-                    //                 fit: BoxFit.cover,
-                    //               ),
-                    //             ),
-                    //             Text(
-                    //               "Hiện tại không có đơn hàng nào",
-                    //               style: TextStyle(
-                    //                   fontFamily: "SF Regular",
-                    //                   fontSize: 16,
-                    //                   color: Color.fromRGBO(120, 120, 120, 1)),
-                    //             ),
-                    //           ],
-                    //         )),
-                    //       );
-                    //     }
-                    //   },
-                    // )
-                  // ),
-                // ],
-//               ),
-//             ],
-//           )));
-//     });
-//   }
-// }
