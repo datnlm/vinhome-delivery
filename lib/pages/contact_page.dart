@@ -25,23 +25,20 @@ class _ContactPageState extends State<ContactPage> {
   bool isLoading = false;
   void handleLogout() async {
     FirebaseAuth auth = FirebaseAuth.instance;
-    await FirebaseAuth.instance.signOut();
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => LoginScreen()));
-    // var docSnapshot = await db.collection("users").doc(auth.currentUser!.email).get();
-    // if (docSnapshot.exists) {
-    //   Map<String, dynamic>? data = docSnapshot.data();
-    //   var fcmToken = data?['fcmToken'];
-    //   var userId = auth.currentUser!.email;
-    //   await db.collection("users").doc(userId).delete().then((value) => {
-    //         auth.signOut().then((value) => {
-    //               setState(() {
-    //                 isLoading = false;
-    //               }),
-    //               Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()))
-    //             })
-    //       });
-    // }
+    var docSnapshot = await db.collection("users").doc(auth.currentUser!.email).get();
+    if (docSnapshot.exists) {
+      Map<String, dynamic>? data = docSnapshot.data();
+      var fcmToken = data?['fcmToken'];
+      var userId = auth.currentUser!.email;
+      await db.collection("users").doc(userId).delete().then((value) => {
+            auth.signOut().then((value) => {
+                  setState(() {
+                    isLoading = false;
+                  }),
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()))
+                })
+          });
+    }
   }
 
   @override

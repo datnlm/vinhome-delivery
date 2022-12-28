@@ -357,11 +357,7 @@ class _ListOrderAceeptPageState extends State<ListOrderAceeptPage> {
                                               routeId: data["RouteId"],
                                               status: data["Status"] ,
                                               totalBill:  data["TotalAdvance"] ?? 0,
-                                              totalCod: data["TotalCod"] ?? 0),
-                                              // routeId: data["RouteId"],
-                                              // status: data["Status"] ,
-                                              // totalBill:  data["TotalBill"],
-                                              // totalCod: data["TotalCod"]),
+                                              totalCod: data["TotalCod"] ?? 0)
                                         ),
                                       );
                                     },

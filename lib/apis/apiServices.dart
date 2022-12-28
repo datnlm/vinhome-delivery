@@ -230,12 +230,16 @@ class ApiServices {
     var messageEdgeModel = Completer<MessageEdgeModel>();
     var body;
     try {
+      print(orderActionId);
+      print(shipperId);
+      print(actionType);
       var response = await http.get(
         Uri.parse(
             '${baseURL}/orders/complete?orderActionId=${orderActionId}&shipperId=${shipperId}&actionType=${actionType}'),
       );
       body = convert.jsonDecode(response.body);
       messageEdgeModel.complete(MessageEdgeModel.fromJson(body));
+      print(response.statusCode.toString() + "status code");
       // List<EdgeModel> edgeList =
       //       body.map((dynamic item) => EdgeModel.fromJson(item)).toList();
     } catch (e) {
