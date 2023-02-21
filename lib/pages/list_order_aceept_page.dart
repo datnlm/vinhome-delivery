@@ -391,8 +391,8 @@ class _ListOrderAceeptPageState extends State<ListOrderAceeptPage> {
                                           builder: (context) => RouteDetailPage(
                                               routeId: data["RouteId"],
                                               status: data["Status"] ?? 1,
-                                              totalBill: data["TotalAdvance"],
-                                              totalCod: data["TotalCod"]),
+                                              totalBill: data["TotalAdvance"] ?? 0,
+                                              totalCod: data["TotalCod"] ?? 0),
                                         ),
                                       );
                                     },

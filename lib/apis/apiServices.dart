@@ -233,13 +233,14 @@ class ApiServices {
       print(orderActionId);
       print(shipperId);
       print(actionType);
-      var response = await http.get(
+      var response = await http.put(
         Uri.parse(
-            '${baseURL}/orders/complete?orderActionId=${orderActionId}&shipperId=${shipperId}&actionType=${actionType}'),
+            '$baseURL/orders/complete?orderActionId=$orderActionId&shipperId=$shipperId&actionType=$actionType'),
       );
       body = convert.jsonDecode(response.body);
       messageEdgeModel.complete(MessageEdgeModel.fromJson(body));
       print(response.statusCode.toString() + "status code");
+      print(response.body.toString());
       // List<EdgeModel> edgeList =
       //       body.map((dynamic item) => EdgeModel.fromJson(item)).toList();
     } catch (e) {
@@ -257,7 +258,7 @@ class ApiServices {
     var body;
     try {
       print('orderCancel');
-      var response = await http.get(
+      var response = await http.put(
         Uri.parse(
             '${baseURL}/orders/cancel?orderActionId=${orderActionId}&shipperId=${shipperId}&actionType=${actionType}&messageFail=${message}'),
       );

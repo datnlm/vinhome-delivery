@@ -393,6 +393,7 @@ class _RouteDetailPageState extends State<RouteDetailPage> with TickerProviderSt
     ApiServices.getListEdge(id)
         .then((value) => {
               messageEdgeModel = value,
+                 print("post accept route" + messageEdgeModel.statusCode.toString()),
               if (messageEdgeModel.statusCode == "Successful")
                 {
                   listEdge = messageEdgeModel.data!.map((item) {

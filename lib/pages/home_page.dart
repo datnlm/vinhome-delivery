@@ -1065,7 +1065,7 @@ class _HomePageState extends State<HomePage> {
                     height: 36,
                     child: InkWell(
                       onTap: () {
-                        // _ModalShipping(context);
+                        _ModalShipping(context);
                       },
                       child: Container(
                         width: MediaQuery.of(context).size.width,
